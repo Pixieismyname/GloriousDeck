@@ -73,7 +73,10 @@ Toggle reward tags in the bottom bar:
                  ↑ fold line (black, centred in 16px gap)
 ```
 
-Each card face: **273 × 377 px** (≈72 × 100mm). Cut along dashed cut-box border. Fold on centre line for double-sided card.
+Each card face: **273 × 377 px** (≈72 × 100mm). 
+Cut utside the striped area.
+Fold along the black line, glue and press. 
+Once glued, cut away the striped area and laminate. Leave a 2mm border of lamination and cut to size
 
 ---
 
