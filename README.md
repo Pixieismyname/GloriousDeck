@@ -91,7 +91,6 @@ Once glued, cut away the striped area and laminate. Leave a 2mm border of lamina
 | Description | Deed condition (body text) |
 | Bible Verse | Flavour quote |
 | Reference | Scripture reference |
-| AI Art Prompt | Ready-to-use prompt for image gen (portrait 2:3, 852×406px) |
 
 ---
 
