@@ -2,7 +2,7 @@
 
 Browser-based card editor for **Trench Crusade** Glorious Deeds cards. Open `card_editor.html` directly in any modern browser — no server or install required.
 
-Feel free to buy me a coffie if you like it.
+Feel free to buy me a coffee if you like it.
 https://buymeacoffee.com/pixieal
 It is published free and under CC BY-NC-SA
 
