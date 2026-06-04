@@ -434,6 +434,7 @@ h1 {
           <input type="number" id="sz-h" value="100" min="10" max="300" step="1">
         </div>
       </div>
+      <div class="pip-row" style="margin-top:6px;"><input type="checkbox" id="chk-lamination" checked><label for="chk-lamination">Lamination margin</label></div>
     </div>
     <div class="editor-section">
       <h2>Reward Pips</h2>
@@ -735,13 +736,19 @@ function updateSize() {
   // Scale card faces on screen (273px and 377px are the baseline pixel sizes)
   const pxW = Math.round(wMm * (273 / 72));
   const pxH = Math.round(hMm * (377 / 100));
-  const bleed = 8, foldGap = 16;
+  const lamination = document.getElementById('chk-lamination').checked;
+  const bleed = lamination ? 8 : 0;
+  const foldGap = lamination ? 16 : 2;
   const sheetW = bleed + pxW + foldGap + pxW + bleed;
   const sheetH = bleed + pxH + bleed;
 
   const sheet = document.querySelector('.print-sheet');
   sheet.style.width  = sheetW + 'px';
   sheet.style.height = sheetH + 'px';
+  sheet.style.background = lamination ? 'repeating-linear-gradient(45deg, #b8b8b8, #b8b8b8 4px, #e0e0e0 4px, #e0e0e0 8px)' : 'none';
+
+  document.querySelector('.fold-line').style.display = lamination ? '' : 'none';
+  document.querySelectorAll('.cut-box').forEach(el => el.style.display = lamination ? '' : 'none');
 
   document.querySelectorAll('.card-face, .cut-box').forEach(el => {
     el.style.width  = pxW + 'px';
@@ -778,13 +785,14 @@ function updateSize() {
     document.head.appendChild(printStyle);
   }
   printStyle.textContent = `@page { size: ${pageW}mm ${pageH}mm; margin: 0; }
-@media print { html, body { width: ${pageW}mm !important; height: ${pageH}mm !important; } .print-sheet { width: ${pageW}mm !important; height: ${pageH}mm !important; } }`;
+@media print { html, body { width: ${pageW}mm !important; height: ${pageH}mm !important; } .print-sheet { width: ${pageW}mm !important; height: ${pageH}mm !important; background: ${lamination ? 'repeating-linear-gradient(45deg, #b8b8b8, #b8b8b8 4px, #e0e0e0 4px, #e0e0e0 8px)' : 'none'} !important; } .fold-line { display: ${lamination ? 'block' : 'none'} !important; } .cut-box { display: ${lamination ? 'block' : 'none'} !important; } }`;
 
   fitBodyText();
 }
 
 document.getElementById('sz-w').addEventListener('input', updateSize);
 document.getElementById('sz-h').addEventListener('input', updateSize);
+document.getElementById('chk-lamination').addEventListener('change', updateSize);
 
 document.getElementById('f-title').addEventListener('input', updateCard);
 document.getElementById('f-body').addEventListener('input', updateCard);
@@ -832,7 +840,8 @@ async function saveAsImage() {
   const cardPxW = Math.round(wMm * (273 / 72));
   const cardPxH2 = Math.round(hMm2 * (377 / 100));
   const scale = (wMm * 300 / 25.4) / cardPxW;
-  const bleedS = 8, foldGapS = 16;
+  const lamination = document.getElementById('chk-lamination').checked;
+  const bleedS = lamination ? 8 : 0, foldGapS = lamination ? 16 : 2;
   const W = bleedS + cardPxW + foldGapS + cardPxW + bleedS;
   const H = bleedS + cardPxH2 + bleedS;
   const title = (document.getElementById('f-title').value || 'card').replace(/[^a-z0-9_-]/gi, '_');
@@ -847,15 +856,17 @@ async function saveAsImage() {
     const s = scale;
 
     // Diagonal stripe background
-    ctx.fillStyle = '#e0e0e0';
-    ctx.fillRect(0, 0, W * s, H * s);
-    ctx.strokeStyle = '#b8b8b8';
-    ctx.lineWidth = 4 * s;
-    for (let i = -(H * s); i <= W * s; i += 8 * s) {
-      ctx.beginPath();
-      ctx.moveTo(i, 0);
-      ctx.lineTo(i + H * s, H * s);
-      ctx.stroke();
+    if (lamination) {
+      ctx.fillStyle = '#e0e0e0';
+      ctx.fillRect(0, 0, W * s, H * s);
+      ctx.strokeStyle = '#b8b8b8';
+      ctx.lineWidth = 4 * s;
+      for (let i = -(H * s); i <= W * s; i += 8 * s) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i + H * s, H * s);
+        ctx.stroke();
+      }
     }
 
     // Capture card faces
@@ -869,19 +880,23 @@ async function saveAsImage() {
     ctx.drawImage(rightC, rightX * s, bleed * s);
 
     // Cut-box borders
-    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
-    ctx.lineWidth = 0.5 * s;
-    ctx.strokeRect(bleed * s, bleed * s, cardPxW * s, cardPxH2 * s);
-    ctx.strokeRect(rightX * s, bleed * s, cardPxW * s, cardPxH2 * s);
+    if (lamination) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+      ctx.lineWidth = 0.5 * s;
+      ctx.strokeRect(bleed * s, bleed * s, cardPxW * s, cardPxH2 * s);
+      ctx.strokeRect(rightX * s, bleed * s, cardPxW * s, cardPxH2 * s);
+    }
 
     // Fold line
-    const foldX = bleed + cardPxW + foldGap / 2;
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 0.5 * s;
-    ctx.beginPath();
-    ctx.moveTo(foldX * s, 0);
-    ctx.lineTo(foldX * s, H * s);
-    ctx.stroke();
+    if (lamination) {
+      const foldX = bleed + cardPxW + foldGap / 2;
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 0.5 * s;
+      ctx.beginPath();
+      ctx.moveTo(foldX * s, 0);
+      ctx.lineTo(foldX * s, H * s);
+      ctx.stroke();
+    }
 
     // Inject 300 DPI into JFIF header
     const raw = atob(canvas.toDataURL('image/jpeg', 0.95).split(',')[1]);
